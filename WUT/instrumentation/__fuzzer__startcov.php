@@ -5,7 +5,7 @@ include "__fuzzer__php7-compat.php";
 $covid = sprintf('%s-%04x%04x-%04x-%04x-%04x-%04x%04x%04x', time(), mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0x0fff) | 0x4000, mt_rand(0, 0x3fff) | 0x8000, mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff));
 
 // ARYA EDIT; comment out this if we only need to record HTTP requests sent by the fuzzer
-$_SERVER['HTTP_X_FUZZER_COVID'] = $_SERVER['HTTP_X_FUZZER_COVID'] ?? $covid;
+// $_SERVER['HTTP_X_FUZZER_COVID'] = $_SERVER['HTTP_X_FUZZER_COVID'] ?? $covid;
 
 if (!getenv("FUZZER_SETUP") && isset($_SERVER['HTTP_X_FUZZER_COVID'])) {
 
