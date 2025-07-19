@@ -3,8 +3,8 @@
 ## What is This?
 This repository contains the artefact accompanying our paper submission. It includes:
 
-- Source code
-- Web Under Test
+- BACFuzz source code
+- Web Under Test (WUT)
 - Scripts to reproduce our experiments
 - Documentation for setup and usage
 
