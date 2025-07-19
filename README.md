@@ -20,7 +20,8 @@ This repository contains the artefact accompanying our paper submission. It incl
 
 ### Requirements
 
-- Python 3.10+
+- Python 3
+- Docker
 
 ### Setup Instructions
 - Open directory /bacfuzz/scripts in a terminal
