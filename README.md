@@ -25,7 +25,7 @@ This repository contains the artefact accompanying our paper submission. It incl
 ### Setup Instructions
 - Open directory /bacfuzz/scripts in a terminal
 - Run ./setup.sh to install required libraries
-- Start Docker (e.g., by running '
+- Start Docker
   ```
   systemctl start docker
   ```
@@ -36,7 +36,7 @@ This repository contains the artefact accompanying our paper submission. It incl
   ```
 - Configure an experiment you want to run. For example, open and edit fuzzer-CVE_2025_0802.sh
 - To run the experiment, run ./fuzzer-CVE_2025_0802.sh
-- The experiment will run the web under test in a Docker container. After the web is ready, BACFuzz is launched for several hours (depending on how long you set up the time)
-  - The MainDriver starts first to crawl the web under test. HTTP requests catched during crawling are stored in attack_surface folder.
-  - After the MainDriver finishes, the ActiveChecker starts to fuzz the web under test.
-  - The final result of BAC detected is stored in final_result folder
+- The experiment runs the target web application inside a Docker container. Once the web application is ready, BACFuzz is launched and runs for several hours (depending on the configured duration).
+  - The MainDriver starts first and crawls the target web application. During crawling, all captured HTTP requests are stored in the attack_surface folder.
+  - After the MainDriver finishes, the ActiveChecker begins fuzzing the target web application.
+  - The final results, including any detected BAC vulnerabilities, are saved in the final_result folder
