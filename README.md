@@ -1,4 +1,4 @@
-# Artefact for "BACFuzz: Revealing Broken Access Control on Web Applications with LLM, Grey-box Fuzzing, and SQL Checking"
+# Artefact for "BACFuzz: Exposing the Silence on Broken Access Control Vulnerabilities in Web Applications"
 
 ## What is This?
 This repository contains the artefact accompanying our paper submission. It includes:
