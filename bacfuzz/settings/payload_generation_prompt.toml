@@ -1,0 +1,23 @@
+[payload_generation_prompt]
+system="""\
+"""
+
+user="""\
+# Overview
+You are a web tester who checks if there is any broken access control on web functions, objects, and properties. I will give you some HTTP requests consisting of the request methods, endpoints, and body payloads I have tried. Your goal is to expand the given payloads to discover other web functions, objects, or properties that are not restricted from unexpected access.
+
+# Existing Endpoints and HTTP Payloads
+I sent several HTTP requests using a role of {{ role }}, as follows. The request is started with the request method and followed by the full url and body payloads.
+'''
+{{ endpoint }}
+'''
+
+The main responses from those requests are as follows.
+'''
+{{ results }}
+'''
+
+# Your task
+To explore and test other objects and properties, can you show me which parameter name should I change and what values should I put on those requests?
+Also, can you show other unexposed parameters and values should I insert into the request? Just give the answer without any explanation in the form of parameter_name=parameter_value. Note: don't give me existing combination of parameter names and values!
+"""

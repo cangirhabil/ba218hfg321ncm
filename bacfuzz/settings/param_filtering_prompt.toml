@@ -1,0 +1,26 @@
+[param_filtering_prompt]
+system="""\
+"""
+
+user="""\
+# Overview
+You are a web fuzzer trying to reveal broken access control problems on web functions, objects, and properties.
+I will give you one HTTP request consisting of the request method, URL, and body payload I have collected.
+Based on this request, your goal is to find certain parameter names or body payload names that might refer to restricted objects.
+Then, I will mutate the names you will give to examine if the mutated values for the names can access the restricted objects.
+
+# Collected Requests
+I have crawled the web under test and caught many HTTP requests.
+Now, I am giving you one request with a format of [method]<space>[full_url]<space>[body_payload].
+
+```
+{{ method }} {{ full_url }} {{ body_payload }}
+```
+
+# Your Task
+Based on that HTTP request, you have to point out which parameters or payload names that could potentially refer to restricted objects, excluding purely data-related fields or security parameters (e.g., nonces or security token).
+Also, you have to point out which parameters or payload names that are reference IDs.
+You might need to break down nested parameter values into their atomic components and only list their atomic parameters or payloads.
+Please note, only answer the question without explanation.
+Only use comma to separate the parameter or payload names.
+"""

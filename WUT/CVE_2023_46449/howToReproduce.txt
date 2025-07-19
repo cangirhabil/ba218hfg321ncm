@@ -1,0 +1,9 @@
+STEPS TO REPRODUCE
+
+1 Login to the user 1 
+2 visit the password change function. 
+3 configue the proxy with burp suit to intercept the request. 
+4 Send the password change request, and intercept the request and manupulate the user id to change another user password. 
+5. Forward the request and turn of the intercept. 
+6. Login to the other user with new password. 
+7. Observe that the account is successfully compromized.

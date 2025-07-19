@@ -1,0 +1,41 @@
+services:
+  db:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM mysql:8.4.0
+        COPY ./_resources/db.sql /docker-entrypoint-initdb.d/db.sql
+    command: mysqld
+    environment:
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_USER_HOST: "%"
+
+  phpmyadmin:
+    image: phpmyadmin:5.2.1
+    ports:
+      - "8801:80"
+    links:
+      - db:db
+
+  web-zencart:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+      args:
+        APP: napp_zencart
+    environment:
+      FUZZER_COVERAGE_PATH: /var/www/html/
+      FUZZER_COMPRESS: 1
+      REQUIRES_DB: 1
+    volumes:
+      - /var/tmp/p312304/Phuzz_WUT/shared-tmpfs:/shared-tmpfs
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 8081:80
+
+  ## TEMP admin PASS: 2ATUaKw1
+  ## admin admin123; order order123; root@localhost.com smith123

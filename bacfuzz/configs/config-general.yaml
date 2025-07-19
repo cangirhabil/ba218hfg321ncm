@@ -1,0 +1,25 @@
+PROJECT_NAME: "WP_671_office"
+HOMEPAGE_URL: "http://localhost:8088/"
+NONCE_KEYWORD: "nonce"
+COOKIE_KEYWORD: "cookie"
+AVOIDED_REQUEST_POST_DATA: []
+
+UNIQUE_STRING: "bacfuzz"
+UNIQUE_NUMBER: 5342
+COV_PATHS: "../../shared-tmpfs/coverage-reports/"
+MYSQL_PATHS: "../../shared-tmpfs/mysql-error-reports/"
+
+LOGIN_PAGE_PHRASES: ['Username or Email Address','value="Log In"','Login']
+UNAUTHORIZED_PAGE_PHRASES: ["Unauthorized"]
+
+NO_NEW_PATH_MAX: 5
+
+## User role specification must starts from the lowest role (i.e., Anonymous)!
+USER_ROLES: ["Admin", "ShopManager", "Anonymous"]
+AVOIDED_LINKS: ["logout","reset","activate","deactivate","upgrade","plugin-install.php","mailto:"]
+IGNORING_SQL: []
+RUNNING_TIME: { h: 0, m: 0 }
+RESTRICTED_LINKS: [
+  "Admin": ["activate","deactivate","upgrade","plugin-install.php"],
+  "ShopManager": []
+]
