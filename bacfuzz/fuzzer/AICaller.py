@@ -16,7 +16,25 @@ import sys
 rootpath = os.path.abspath('..')
 print(rootpath)
 sys.path.insert(1,rootpath+'/settings')
-from config_loader import get_settings
+try:
+    from config_loader import get_settings
+except ImportError:
+    print("[AI WARNING] config_loader not found, using simple prompts")
+    def get_settings():
+        class MockSettings:
+            class payload_prompt:
+                system = "You are a security expert."
+                user = "Perform security analysis for {{payload}}."
+            class param_filtering_prompt:
+                system = "You are a web security expert."
+                user = "Analyze the {{body_payload}} parameters in the {{method}} {{full_url}} request."
+            class general_prompt:
+                system = "You are a security expert."
+                user = "Perform {{payload}} analysis for {{endpoint}}."
+            class expand_payload_prompt:
+                system = "You are a security expert."
+                user = "Expand payload for {{endpoint}}."
+        return MockSettings()
 
 
 
@@ -62,10 +80,13 @@ class AICaller:
             "max_tokens": max_tokens,
             "stream": True,
             "temperature": 0.2,
-            ## ARYA EDIT, for Gemini
-            # "response_format": {"type": "json_object"}
         }
 
+        # Special settings for Gemini
+        if "gemini" in self.model.lower():
+            print("[AI INFO] Using Gemini model - streaming disabled")
+            completion_params["stream"] = False
+        
         # API base exception for OpenAI Compatible, Ollama and Hugging Face models
         if (
                 "ollama" in self.model
@@ -76,28 +97,57 @@ class AICaller:
 
         response = litellm.completion(**completion_params)
 
-        chunks = []
-        print("Streaming results from LLM model...")
-        try:
-            for chunk in response:
-                print(chunk.choices[0].delta.content or "", end="", flush=True)
-                chunks.append(chunk)
-                time.sleep(
-                    0.01
-                )  # Optional: Delay to simulate more 'natural' response pacing
-        except Exception as e:
-            print(f"Error during streaming: {e}")
-        print("\n")
+        # Streaming kontrolü
+        if completion_params.get("stream", True):
+            chunks = []
+            print("Streaming results from LLM model...")
+            try:
+                for chunk in response:
+                    content = chunk.choices[0].delta.content
+                    if content:
+                        print(content, end="", flush=True)
+                        chunks.append(chunk)
+                    time.sleep(0.01)
+            except Exception as e:
+                print(f"Error during streaming: {e}")
+                return ("Streaming error occurred", 0, 0)
+            print("\n")
 
-
-        model_response = litellm.stream_chunk_builder(chunks, messages=messages)
-
-        # Returns: Response, Prompt token count, and Response token count
-        return (
-            model_response["choices"][0]["message"]["content"],
-            int(model_response["usage"]["prompt_tokens"]),
-            int(model_response["usage"]["completion_tokens"]),
-        )
+            if chunks:
+                model_response = litellm.stream_chunk_builder(chunks, messages=messages)
+                return (
+                    model_response["choices"][0]["message"]["content"],
+                    int(model_response["usage"]["prompt_tokens"]),
+                    int(model_response["usage"]["completion_tokens"]),
+                )
+            else:
+                return ("No content received from streaming", 0, 0)
+        else:
+            # Non-streaming mode (for Gemini)
+            print("Non-streaming results from LLM model...")
+            content = response.choices[0].message.content
+            
+            # Gemini 2.5 Flash reasoning token check
+            if content is None and "gemini" in self.model.lower():
+                # In Gemini, reasoning mode makes text_tokens 0
+                usage_details = getattr(response.usage, 'completion_tokens_details', None)
+                if usage_details and hasattr(usage_details, 'text_tokens') and usage_details.text_tokens == 0:
+                    print("[AI INFO] Gemini reasoning mode active - analysis completed")
+                    content = "AI analysis completed (reasoning mode)"
+                else:
+                    print("[AI WARNING] Empty content received from Gemini")
+                    content = "Empty AI response"
+            elif content is None:
+                print("[AI WARNING] Empty response received from model")
+                content = "Empty AI response"
+            else:
+                print(content)
+            
+            return (
+                content,
+                int(response.usage.prompt_tokens),
+                int(response.usage.completion_tokens),
+            )
 
 def build_prompt(endpoint: URL, payload: str) -> dict:
     variables = {

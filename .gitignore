@@ -246,6 +246,12 @@ bacfuzz/log/
 bacfuzz/result/
 bacfuzz/screenshots/
 
+# BACFuzz attack surface configurations (generated files)
+bacfuzz/attack_surface/
+
+# Shared temporary filesystem
+shared-tmpfs/
+
 # Playwright browser downloads
 ms-playwright/
 playwright-browsers/
