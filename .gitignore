@@ -249,6 +249,9 @@ bacfuzz/screenshots/
 # BACFuzz attack surface configurations (generated files)
 bacfuzz/attack_surface/
 
+# BACFuzz login state files (session data)
+bacfuzz/login_state/
+
 # Shared temporary filesystem
 shared-tmpfs/
 
