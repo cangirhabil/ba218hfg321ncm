@@ -1,6 +1,6 @@
 PROJECT_NAME: "nextcloud"
 HOMEPAGE_URL: "http://localhost:8084/"
-NONCE_KEYWORD: "nonce"
+NONCE_KEYWORD: "requesttoken"
 COOKIE_KEYWORD: "cookie"
 AVOIDED_REQUEST_POST_DATA: []
 

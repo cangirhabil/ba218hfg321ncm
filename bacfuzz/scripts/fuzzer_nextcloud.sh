@@ -32,7 +32,7 @@ echo "RUNNING THE FUZZER - CHECKER PHASE"
 cd $SCRIPT_DIR
 source ../venv/bin/activate
 cd ../fuzzer
-NODE_OPTIONS="--max-old-space-size=8192" python fuzzer.py --hour 0 --minute 5 --url $TARGET_URL --name ${project_name} --only-checker y --roles Admin User Editor Viewer Anonymous --config ../configs/config-nextcloud.yaml 2>&1 | tee ../"${project_name}-CHECK-$(hostname)-${timestamp}.log"
+NODE_OPTIONS="--max-old-space-size=8192" python fuzzer.py --hour 24 --minute 0 --url $TARGET_URL --name ${project_name} --only-checker y --roles Admin User Editor Viewer Anonymous --config ../configs/config-nextcloud.yaml 2>&1 | tee ../"${project_name}-CHECK-$(hostname)-${timestamp}.log"
 
 echo "COLLECTING SYSTEM STATISTICS"
 cd $SCRIPT_DIR
