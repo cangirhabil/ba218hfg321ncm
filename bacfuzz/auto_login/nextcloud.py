@@ -53,15 +53,15 @@ def run_2(playwright: Playwright) -> None:
     
     try:
         page.fill("input[name='user']", "testuser")
-        page.fill("input[name='password']", "testuser123.")
+        page.fill("input[name='password']", "TestUser2024!")
     except:
         try:
             page.get_by_label("Username", exact=True).fill("testuser")
-            page.get_by_label("Password", exact=True).fill("testuser123.")
+            page.get_by_label("Password", exact=True).fill("TestUser2024!")
         except:
             page.get_by_placeholder("Username", exact=True).fill("testuser")
-            page.get_by_placeholder("Password", exact=True).fill("testuser123.")
-    
+            page.get_by_placeholder("Password", exact=True).fill("TestUser2024!")
+
     try:
         page.get_by_role("button", name="Log in").click()
     except:
@@ -86,15 +86,15 @@ def run_3(playwright: Playwright) -> None:
     
     try:
         page.fill("input[name='user']", "editor")
-        page.fill("input[name='password']", "editor1234.")
+        page.fill("input[name='password']", "EditorPass2024!")
     except:
         try:
             page.get_by_label("Username", exact=True).fill("editor")
-            page.get_by_label("Password", exact=True).fill("editor1234.")
+            page.get_by_label("Password", exact=True).fill("EditorPass2024!")
         except:
             page.get_by_placeholder("Username", exact=True).fill("editor")
-            page.get_by_placeholder("Password", exact=True).fill("editor1234.")
-    
+            page.get_by_placeholder("Password", exact=True).fill("EditorPass2024!")
+
     try:
         page.get_by_role("button", name="Log in").click()
     except:
@@ -119,15 +119,15 @@ def run_4(playwright: Playwright) -> None:
     
     try:
         page.fill("input[name='user']", "viewer")
-        page.fill("input[name='password']", "viewer123.")
+        page.fill("input[name='password']", "ViewerPass2024!")
     except:
         try:
             page.get_by_label("Username", exact=True).fill("viewer")
-            page.get_by_label("Password", exact=True).fill("viewer123.")
+            page.get_by_label("Password", exact=True).fill("ViewerPass2024!")
         except:
             page.get_by_placeholder("Username", exact=True).fill("viewer")
-            page.get_by_placeholder("Password", exact=True).fill("viewer123.")
-    
+            page.get_by_placeholder("Password", exact=True).fill("ViewerPass2024!")
+
     try:
         page.get_by_role("button", name="Log in").click()
     except:
