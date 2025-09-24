@@ -1,119 +1,218 @@
-#!/bin/bash
+echo "🎯 osTicket OTONOM KURULUM SİSTEMİ - BacFuzz Hazır"
+echo "================================================="
+echo ""
 
-echo "🎯 osTicket FULLY AUTOMATED Installation (Fixed Version)..."
+# Check if Docker is available
+if ! docker --version >/dev/null 2>&1; then
+    echo "❌ Docker bulunamadı! Lütfen Docker'ı kurun."
+    exit 1
+fi
+echo "✅ Docker mevcut"
 
+# Check if osTicket-develop exists, if not download it
+OSTICKET_DIR="../osTicket-develop"
+if [ ! -d "$OSTICKET_DIR" ]; then
+    echo ""
+    echo "📥 osTicket kaynak kodu bulunamadı, indiriliyor..."
+    cd ..
+    
+    # Remove only specific osTicket source directories (NOT the setup directory!)
+    rm -rf osTicket-develop osTicket-master
+    
+    echo "   GitHub'dan osTicket indiriliyor..."
+    if git clone https://github.com/osTicket/osTicket.git osTicket-develop; then
+        echo "✅ osTicket kaynak kodu başarıyla indirildi"
+    else
+        echo "❌ osTicket indirme hatası!"
+        exit 1
+    fi
+    
+    cd osTicket
+else
+    echo "✅ osTicket kaynak kodu mevcut"
+fi
+
+echo ""
+echo "🧹 Önceki kurulumu temizleniyor..."
 # Cleanup first
 docker compose down -v 2>/dev/null
 rm -f /tmp/osticket_*
+docker system prune -f >/dev/null 2>&1
 
-echo "Starting containers..."
-docker compose up -d
+echo ""
+echo "🏗️  Docker container'ları oluşturuluyor ve başlatılıyor..."
+docker compose up -d --build
 
-echo "Waiting for services to initialize..."
-sleep 15
+echo ""
+echo "⏳ Servisler başlatılıyor ve hazırlanıyor..."
+sleep 25
 
 # Wait for MySQL to be ready
-echo "Waiting for database..."
-for i in {1..30}; do
+echo "🗄️  Veritabanı hazırlanıyor..."
+for i in {1..40}; do
     if docker exec osticket-db-1 mysqladmin ping -h localhost -u osticket -posticket123 >/dev/null 2>&1; then
-        echo "  Database ready!"
+        echo "✅ Veritabanı hazır!"
         break
     fi
-    echo "  Database not ready, waiting... ($i/30)"
-    sleep 2
-done
-
-# Wait for web server
-echo "Waiting for web server..."
-for i in {1..20}; do
-    if curl -s http://localhost:8085/setup/ >/dev/null 2>&1; then
-        echo "  Web server ready!"
-        break
-    fi
-    echo "  Web server not ready, waiting... ($i/20)"
-    sleep 2
+    echo "   Veritabanı bekleniyor... ($i/40)"
+    sleep 4
 done
 
 echo ""
-echo "🚀 STARTING AUTOMATED INSTALLATION..."
+echo "🔧 Fuzzer instrumentation hazırlanıyor..."
+# Initialize fuzzer instrumentation
+docker exec osticket-app-1 mkdir -p /var/www/fuzzer
+docker exec osticket-app-1 touch /var/www/fuzzer/__fuzzer__startcov.php
+docker exec osticket-app-1 touch /var/www/fuzzer/__fuzzer__stopcov.php
+docker exec osticket-app-1 chown -R www-data:www-data /var/www/fuzzer/
+echo "✅ Fuzzer instrumentation hazır"
+
+# Wait for web server
+echo ""
+echo "🌐 Web sunucusu hazırlanıyor..."
+for i in {1..40}; do
+    response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8085/setup/ 2>/dev/null || echo "000")
+    if [ "$response" = "200" ] || [ "$response" = "301" ] || [ "$response" = "302" ]; then
+        echo "✅ Web sunucusu hazır! (HTTP $response)"
+        break
+    fi
+    echo "   Web sunucusu bekleniyor... ($i/40) (HTTP $response)"
+    sleep 4
+done
+
+if [ "$response" = "000" ]; then
+    echo "❌ Web sunucusu başlatılamadı!"
+    exit 1
+fi
+
+echo ""
+echo "🚀 OTOMATİK KURULUM BAŞLATILIYOR..."
+echo ""
 
 # Create config file first
-echo "  Creating configuration file..."
-docker exec osticket-app-1 cp include/ost-sampleconfig.php include/ost-config.php
-docker exec osticket-app-1 chmod 666 include/ost-config.php
+echo "📝 Konfigurasyon dosyası oluşturuluyor..."
+if docker exec osticket-app-1 cp include/ost-sampleconfig.php include/ost-config.php 2>/dev/null; then
+    docker exec osticket-app-1 chmod 666 include/ost-config.php
+    echo "✅ Konfigurasyon dosyası hazır"
+else
+    echo "❌ Konfigurasyon dosyası oluşturulamadı!"
+    exit 1
+fi
 
 # Step 1: Check prerequisites
-echo "  Step 1/3: Checking prerequisites..."
+echo ""
+echo "🔍 Adım 1/2: Sistem gereksinimleri kontrol ediliyor..."
 curl -X POST \
-  -H "User-Agent: Mozilla/5.0" \
+  -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -c /tmp/osticket_cookies.txt \
   --data "s=prereq&submit=Continue" \
   "http://localhost:8085/setup/install.php" \
   -s -o /tmp/prereq_response.html
 
-sleep 3
+if [ $? -eq 0 ]; then
+    echo "✅ Sistem gereksinimleri kontrolü tamamlandı"
+else
+    echo "❌ Sistem gereksinimleri kontrolü başarısız!"
+fi
 
-# Step 2: Submit installation directly (skip config step)
-echo "  Step 2/2: Installing osTicket..."
+sleep 5
+
+# Step 2: Submit installation
+echo ""
+echo "⚙️  Adım 2/2: osTicket kuruluyor..."
 curl -X POST \
-  -H "User-Agent: Mozilla/5.0" \
+  -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" \
   -H "Content-Type: application/x-www-form-urlencoded" \
+  -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+  -b /tmp/osticket_cookies.txt \
+  -c /tmp/osticket_cookies.txt \
   --data "s=install&name=osTicket+BacFuzz+System&email=system@osticket.local&fname=admin&lname=user&admin_email=admin@osticket.local&username=adminuser&passwd=admin123&passwd2=admin123&prefix=ost_&dbhost=db&dbname=osticket&dbuser=osticket&dbpass=osticket123" \
   "http://localhost:8085/setup/install.php" \
   -s -o /tmp/config_response.html
 
-echo "  Installation submitted, waiting for completion..."
-sleep 10
+echo "✅ Kurulum isteği gönderildi, tamamlanması bekleniyor..."
+sleep 20
 
-# Verify installation by checking database tables
 echo ""
-echo "🔍 Verifying installation..."
+echo "🔍 KURULUM DOĞRULANIYOR..."
 
-MAX_ATTEMPTS=15
+MAX_ATTEMPTS=20
 for attempt in $(seq 1 $MAX_ATTEMPTS); do
     TABLES=$(docker exec osticket-db-1 mysql -u osticket -posticket123 -e "USE osticket; SHOW TABLES;" 2>/dev/null | grep "ost_" 2>/dev/null | wc -l | tr -d ' \n')
     
-    echo "  Attempt $attempt/$MAX_ATTEMPTS: Found $TABLES database tables"
+    echo "   Deneme $attempt/$MAX_ATTEMPTS: $TABLES veritabanı tablosu bulundu"
     
     if [ ! -z "$TABLES" ] && [ "$TABLES" -gt 25 ]; then
         echo ""
-        echo "🎉 INSTALLATION SUCCESSFUL! ($TABLES tables created)"
+        echo "🎉 KURULUM BAŞARILI! ($TABLES tablo oluşturuldu)"
+        
+        # Final verification - test endpoints
         echo ""
-        echo "📍 ACCESS INFORMATION:"
-        echo "   🌐 Main Site: http://localhost:8085"
-        echo "   🔧 Admin Panel: http://localhost:8085/scp/login.php"
-        echo "   🎫 New Ticket: http://localhost:8085/"
+        echo "🧪 Son kontroller yapılıyor..."
+        
+        main_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8085/ 2>/dev/null)
+        admin_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8085/scp/login.php 2>/dev/null)
+        
+        echo "   Ana sayfa: HTTP $main_response"
+        echo "   Admin paneli: HTTP $admin_response"
+        
+        if [ "$main_response" = "200" ] && [ "$admin_response" = "200" ]; then
+            echo "✅ Tüm endpoint'ler çalışıyor"
+        else
+            echo "⚠️  Bazı endpoint'ler henüz hazır değil, ancak kurulum tamamlandı"
+        fi
+        
         echo ""
-        echo "🔑 ADMIN CREDENTIALS:"
-        echo "   👤 Username: adminuser"
-        echo "   🔒 Password: admin123"
+        echo "================================================="
+        echo "🎯 osTicket BacFuzz Sistemi HAZIR!"
+        echo "================================================="
         echo ""
-        echo "✅ osTicket is ready for BacFuzz testing!"
+        echo "📍 ERİŞİM BİLGİLERİ:"
+        echo "   🌐 Ana Site: http://localhost:8085"
+        echo "   🔧 Admin Paneli: http://localhost:8085/scp/login.php"
+        echo "   🎫 Yeni Bilet: http://localhost:8085/"
+        echo ""
+        echo "🔑 ADMİN GİRİŞ BİLGİLERİ:"
+        echo "   👤 Kullanıcı adı: adminuser"
+        echo "   🔒 Şifre: admin123"
+        echo ""
+        echo "🚀 FUZZING İÇİN HAZIR!"
+        echo "   Şimdi fuzzer_osticket.sh çalıştırabilirsiniz:"
+        echo "   cd /Users/admin/Desktop/ba218hfg321ncm/bacfuzz/scripts"
+        echo "   ./fuzzer_osticket.sh"
+        echo ""
+        echo "🛑 SİSTEMİ DURDURMAK İÇİN:"
+        echo "   docker compose down"
+        echo ""
+        echo "✅ Kurulum tamamlandı!"
+        
         exit 0
     fi
     
     if [ $attempt -lt $MAX_ATTEMPTS ]; then
-        sleep 5
+        sleep 6
     fi
 done
 
 echo ""
-echo "❌ AUTOMATIC INSTALLATION TIMEOUT"
-echo "   Check installation manually at: http://localhost:8085/setup/"
+echo "❌ OTOMATİK KURULUM ZAMAN AŞIMI"
 echo ""
-
-# Show debug info
-echo "📊 DEBUG INFORMATION:"
-echo "Database tables found: $TABLES"
+echo "📊 DEBUG BİLGİLERİ:"
+echo "   Bulunan veritabanı tablosu: $TABLES"
 if [ -f /tmp/config_response.html ]; then
-    echo "Configuration response size: $(wc -c < /tmp/config_response.html) bytes"
+    echo "   Kurulum yanıt boyutu: $(wc -c < /tmp/config_response.html) bytes"
 fi
 
 echo ""
-echo "🔧 If installation failed, you may need to:"
-echo "   1. Check database connection: docker exec osticket-db-1 mysql -u osticket -posticket123 -e 'SHOW DATABASES;'"
-echo "   2. Manually complete at: http://localhost:8085/setup/"
-echo "   3. Use credentials above"
+echo "🔧 Kurulum başarısız olduysa:"
+echo "   1. Veritabanı bağlantısını kontrol edin:"
+echo "      docker exec osticket-db-1 mysql -u osticket -posticket123 -e 'SHOW DATABASES;'"
+echo "   2. Manuel kurulum: http://localhost:8085/setup/"
+echo "   3. Yukarıdaki giriş bilgilerini kullanın"
+echo ""
+echo "🔄 Tekrar denemek için:"
+echo "   docker compose down -v"
+echo "   ./setup.sh"
 
 exit 1
