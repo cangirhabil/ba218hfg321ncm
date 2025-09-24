@@ -16,7 +16,7 @@ echo "RUNNING THE FUZZER - DRIVER PHASE"
 cd $SCRIPT_DIR
 source ../venv/bin/activate
 cd ../fuzzer
-python fuzzer.py --hour 0 --minute 5 --url $TARGET_URL --name ${project_name} --only-driver y --roles Admin User Editor Viewer Anonymous 2>&1 | tee ../"${project_name}-DRI-$(hostname)-${timestamp}.log"
+python fuzzer.py --hour 24 --minute 0 --url $TARGET_URL --name ${project_name} --only-driver y --roles Admin User Editor Viewer Anonymous 2>&1 | tee ../"${project_name}-DRI-$(hostname)-${timestamp}.log"
 
 echo "DELETE THE WUT"
 cd $SCRIPT_DIR
