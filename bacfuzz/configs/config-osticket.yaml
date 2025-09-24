@@ -1,0 +1,26 @@
+PROJECT_NAME: "osticket"
+HOMEPAGE_URL: "http://localhost:8085/"
+NONCE_KEYWORD: "token"
+COOKIE_KEYWORD: "cookie"
+AVOIDED_REQUEST_POST_DATA: []
+
+UNIQUE_STRING: "bacfuzz"
+UNIQUE_NUMBER: 5342
+COV_PATHS: "../../shared-tmpfs/coverage-reports/"
+MYSQL_PATHS: "../../shared-tmpfs/mysql-error-reports/"
+
+LOGIN_PAGE_PHRASES: ["Username", "Password", "Sign In", "Agent Login"]
+UNAUTHORIZED_PAGE_PHRASES: ["Unauthorized", "Access Denied", "Permission denied", "Login Required"]
+
+NO_NEW_PATH_MAX: 5
+
+## User role specification must starts from the lowest role (i.e., Anonymous)!
+USER_ROLES: ["Anonymous", "User", "Agent", "Admin"]
+AVOIDED_LINKS: ["logout", "reset", "activate", "deactivate", "upgrade", "delete", "remove"]
+IGNORING_SQL: []
+RUNNING_TIME: { h: 0, m: 0 }
+RESTRICTED_LINKS:
+  Admin: []
+  Agent: ["admin", "settings", "manage", "configuration"]
+  User: ["admin", "scp", "staff", "agent"]
+  Anonymous: ["admin", "scp", "staff", "agent"]
