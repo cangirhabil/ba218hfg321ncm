@@ -10,6 +10,7 @@ cd /Users/admin/Desktop/ba218hfg321ncm/WUT/osTicket
 ```
 
 That's it! The script will:
+
 1. Start Docker containers (osTicket + MariaDB)
 2. Prepare the installation
 3. Open your browser to complete setup
@@ -20,6 +21,7 @@ That's it! The script will:
 The script opens: **http://localhost:8085/setup/**
 
 **Fill the form with these values:**
+
 ```
 Helpdesk Name: osTicket BacFuzz System
 Admin Email: admin@osticket.local
@@ -27,7 +29,7 @@ Username: admin
 Password: admin123
 
 Database Host: db
-Database Name: osticket  
+Database Name: osticket
 Database User: osticket
 Database Password: osticket123
 ```
@@ -37,8 +39,9 @@ Click "Install Now" and you're done!
 ## 🎯 Access Points
 
 After installation:
+
 - **Main Site:** http://localhost:8085
-- **Admin Panel:** http://localhost:8085/scp  
+- **Admin Panel:** http://localhost:8085/scp
 - **New Ticket:** http://localhost:8085/open.php
 
 **Login:** adminuser / admin123
@@ -57,7 +60,7 @@ After installation:
 # View logs
 docker-compose logs -f
 
-# Stop system  
+# Stop system
 docker-compose down
 
 # Complete reset
@@ -75,23 +78,28 @@ docker-compose down -v && ./setup.sh
 **Ready for comprehensive security testing! 🎯**
 
 # Access database
+
 docker exec -it osticket-db-1 mysql -u osticket -posticket123 osticket
 
 # Access application container
+
 docker exec -it osticket-app-1 bash
+
 ```
 
 ## File Structure
 
 ```
+
 osTicket/
-├── docker-compose.yaml     # Docker Compose configuration
-├── setup.sh               # Automated installation script
-├── README.md              # This file
+├── docker-compose.yaml # Docker Compose configuration
+├── setup.sh # Automated installation script
+├── README.md # This file
 ├── configs/
-│   ├── php.ini            # PHP configuration
-│   └── 000-default.conf   # Apache virtual host
-└── instrumentation/       # Fuzzing instrumentation files
+│ ├── php.ini # PHP configuration
+│ └── 000-default.conf # Apache virtual host
+└── instrumentation/ # Fuzzing instrumentation files
+
 ```
 
 ## Troubleshooting
@@ -113,3 +121,4 @@ This setup is designed to work with the existing fuzzing infrastructure:
 - Instrumentation files are copied to the container
 - Shared tmpfs volume is mounted for fuzzing outputs
 - The application is accessible on a dedicated port (8085)
+```
