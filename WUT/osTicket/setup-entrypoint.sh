@@ -5,11 +5,11 @@
 
 set -e
 
-echo "🎯 osTicket OTONOM KURULUM SİSTEMİ - BacFuzz Hazır"
+echo "🎯 osTicket AUTONOMOUS INSTALLATION SYSTEM - BacFuzz Ready"
 echo "================================================="
 
 # Start the original entrypoint in background
-echo "🚀 osTicket başlatılıyor..."
+echo "🚀 Starting osTicket..."
 apache2-foreground &
 OSTICKET_PID=$!
 
@@ -22,7 +22,7 @@ cleanup() {
 trap cleanup EXIT
 
 # Wait for web server to be ready
-echo "🌐 Web sunucusu hazırlanıyor..."
+echo "🌐 Preparing web server..."
 TIMEOUT=300  # 5 minute timeout
 COUNTER=0
 
@@ -30,47 +30,47 @@ until curl -f -s http://localhost/setup/ > /dev/null 2>&1; do
     sleep 5
     COUNTER=$((COUNTER + 5))
     if [ $COUNTER -ge $TIMEOUT ]; then
-        echo "❌ Web sunucusu $TIMEOUT saniye içinde hazır olmadı!"
+        echo "❌ Web server was not ready within $TIMEOUT seconds!"
         exit 1
     fi
-    echo "   Web sunucusu bekleniyor... ($COUNTER/$TIMEOUT seconds)"
+    echo "   Waiting for web server... ($COUNTER/$TIMEOUT seconds)"
 done
 
-echo "✅ Web sunucusu hazır!"
+echo "✅ Web server is ready!"
 
 # Check if setup has already been completed
 SETUP_FLAG="/var/www/html/.setup_completed"
 if [ -f "$SETUP_FLAG" ]; then
-    echo "✅ Kurulum zaten tamamlanmış, atlaniyor."
+    echo "✅ Setup already completed, skipping."
     # Keep the main process running
     wait $OSTICKET_PID
     exit $?
 fi
 
-echo "🔧 osTicket otomatik kurulum başlatılıyor..."
+echo "🔧 Starting osTicket automatic installation..."
 
 # Wait a bit more for full initialization
 sleep 10
 
-echo "🔧 Fuzzer instrumentation hazırlanıyor..."
+echo "🔧 Preparing fuzzer instrumentation..."
 # Initialize fuzzer instrumentation
 mkdir -p /var/www/fuzzer
 touch /var/www/fuzzer/__fuzzer__startcov.php
 touch /var/www/fuzzer/__fuzzer__stopcov.php
 chown -R www-data:www-data /var/www/fuzzer/
-echo "✅ Fuzzer instrumentation hazır"
+echo "✅ Fuzzer instrumentation ready"
 
-echo "📝 Konfigurasyon dosyası oluşturuluyor..."
+echo "📝 Creating configuration file..."
 if cp include/ost-sampleconfig.php include/ost-config.php 2>/dev/null; then
     chmod 666 include/ost-config.php
-    echo "✅ Konfigurasyon dosyası hazır"
+    echo "✅ Configuration file ready"
 else
-    echo "❌ Konfigurasyon dosyası oluşturulamadı!"
+    echo "❌ Failed to create configuration file!"
     exit 1
 fi
 
 # Step 1: Check prerequisites
-echo "🔍 Adım 1/2: Sistem gereksinimleri kontrol ediliyor..."
+echo "🔍 Step 1/2: Checking system requirements..."
 curl -X POST \
   -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" \
   -H "Content-Type: application/x-www-form-urlencoded" \
@@ -80,15 +80,15 @@ curl -X POST \
   -s -o /tmp/prereq_response.html
 
 if [ $? -eq 0 ]; then
-    echo "✅ Sistem gereksinimleri kontrolü tamamlandı"
+    echo "✅ System requirements check completed"
 else
-    echo "❌ Sistem gereksinimleri kontrolü başarısız!"
+    echo "❌ System requirements check failed!"
 fi
 
 sleep 5
 
 # Step 2: Submit installation
-echo "⚙️  Adım 2/2: osTicket kuruluyor..."
+echo "⚙️  Step 2/2: Installing osTicket..."
 curl -X POST \
   -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" \
   -H "Content-Type: application/x-www-form-urlencoded" \
@@ -99,34 +99,34 @@ curl -X POST \
   "http://localhost/setup/install.php" \
   -s -o /tmp/config_response.html
 
-echo "✅ Kurulum isteği gönderildi, tamamlanması bekleniyor..."
+echo "✅ Installation request sent, waiting for completion..."
 sleep 20
 
-echo "🔍 KURULUM DOĞRULANIYOR..."
+echo "🔍 VERIFYING INSTALLATION..."
 
 MAX_ATTEMPTS=20
 for attempt in $(seq 1 $MAX_ATTEMPTS); do
     # Check database tables
     TABLES=$(mysql -h db -u osticket -posticket123 -e "USE osticket; SHOW TABLES;" 2>/dev/null | grep "ost_" 2>/dev/null | wc -l | tr -d ' \n' || echo "0")
     
-    echo "   Deneme $attempt/$MAX_ATTEMPTS: $TABLES veritabanı tablosu bulundu"
+    echo "   Attempt $attempt/$MAX_ATTEMPTS: $TABLES database tables found"
     
     if [ ! -z "$TABLES" ] && [ "$TABLES" -gt 25 ]; then
-        echo "🎉 KURULUM BAŞARILI! ($TABLES tablo oluşturuldu)"
+        echo "🎉 INSTALLATION SUCCESSFUL! ($TABLES tables created)"
         
         # Final verification - test endpoints
-        echo "🧪 Son kontroller yapılıyor..."
+        echo "🧪 Performing final checks..."
         
         main_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/ 2>/dev/null)
         admin_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/scp/login.php 2>/dev/null)
         
-        echo "   Ana sayfa: HTTP $main_response"
-        echo "   Admin paneli: HTTP $admin_response"
+        echo "   Main page: HTTP $main_response"
+        echo "   Admin panel: HTTP $admin_response"
         
         if [ "$main_response" = "200" ] && [ "$admin_response" = "200" ]; then
-            echo "✅ Tüm endpoint'ler çalışıyor"
+            echo "✅ All endpoints are working"
         else
-            echo "⚠️  Bazı endpoint'ler henüz hazır değil, ancak kurulum tamamlandı"
+            echo "⚠️  Some endpoints are not ready yet, but installation is complete"
         fi
         
         # Mark setup as completed
@@ -134,19 +134,19 @@ for attempt in $(seq 1 $MAX_ATTEMPTS); do
         
         echo ""
         echo "================================================="
-        echo "🎯 osTicket BacFuzz Sistemi HAZIR!"
+    echo "🎯 osTicket BacFuzz System READY!"
         echo "================================================="
         echo ""
-        echo "📍 ERİŞİM BİLGİLERİ:"
-        echo "   🌐 Ana Site: http://localhost:8085"
-        echo "   🔧 Admin Paneli: http://localhost:8085/scp/login.php"
-        echo "   🎫 Yeni Bilet: http://localhost:8085/"
-        echo ""
-        echo "🔑 ADMİN GİRİŞ BİLGİLERİ:"
-        echo "   👤 Kullanıcı adı: adminuser"
-        echo "   🔒 Şifre: admin123"
-        echo ""
-        echo "✅ Auto-Setup tamamlandı!"
+    echo "📍 ACCESS INFORMATION:"
+    echo "   🌐 Main Site: http://localhost:8085"
+    echo "   🔧 Admin Panel: http://localhost:8085/scp/login.php"
+    echo "   🎫 New Ticket: http://localhost:8085/"
+    echo ""
+    echo "🔑 ADMIN LOGIN INFORMATION:"
+    echo "   👤 Username: adminuser"
+    echo "   🔒 Password: admin123"
+    echo ""
+    echo "✅ Auto-Setup completed!"
         
         # Keep the main osTicket process running
         wait $OSTICKET_PID
@@ -159,17 +159,17 @@ for attempt in $(seq 1 $MAX_ATTEMPTS); do
 done
 
 echo ""
-echo "❌ OTOMATİK KURULUM ZAMAN AŞIMI"
+echo "❌ AUTOMATIC INSTALLATION TIMEOUT"
 echo ""
-echo "📊 DEBUG BİLGİLERİ:"
-echo "   Bulunan veritabanı tablosu: $TABLES"
+echo "📊 DEBUG INFORMATION:"
+echo "   Database tables found: $TABLES"
 if [ -f /tmp/config_response.html ]; then
-    echo "   Kurulum yanıt boyutu: $(wc -c < /tmp/config_response.html) bytes"
+    echo "   Installation response size: $(wc -c < /tmp/config_response.html) bytes"
 fi
 
 echo ""
-echo "⚠️  Manuel kurulum gerekebilir: http://localhost:8085/setup/"
-echo "   Yukarıdaki giriş bilgilerini kullanın"
+echo "⚠️  Manual installation may be required: http://localhost:8085/setup/"
+echo "   Use the login information above"
 
 # Keep the main process running even if setup failed
 wait $OSTICKET_PID
