@@ -13,6 +13,10 @@ services:
       - MYSQL_USER=osticket
     networks:
       - osticket_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "osticket", "-posticket123"]
+      timeout: 20s
+      retries: 10
 
   app:
     build:
@@ -31,6 +35,7 @@ services:
       - ../../shared-tmpfs:/shared-tmpfs
       - ./configs/php.ini:/usr/local/etc/php/php.ini
       - ./configs/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - ./setup-entrypoint.sh:/setup-entrypoint.sh:ro
     environment:
       - MYSQL_PASSWORD=osticket123
       - MYSQL_DATABASE=osticket
@@ -38,9 +43,11 @@ services:
       - MYSQL_HOST=db
       - MYSQL_ROOT_PASSWORD=rootpassword
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - osticket_network
+    entrypoint: ["/setup-entrypoint.sh"]
 
 volumes:
   osticket:
