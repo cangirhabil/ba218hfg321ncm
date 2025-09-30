@@ -24,7 +24,7 @@ def run_admin(playwright: Playwright) -> None:
             page.get_by_label("Password", exact=True).fill("admin123")
         except:
             # Third try: placeholder-based selectors
-            page.get_by_placeholder("Username", exact=True).fill("admin")
+            page.get_by_placeholder("Account name or email", exact=True).fill("admin")
             page.get_by_placeholder("Password", exact=True).fill("admin123")
     
     # Submit form
@@ -59,7 +59,7 @@ def run_2(playwright: Playwright) -> None:
             page.get_by_label("Username", exact=True).fill("testuser")
             page.get_by_label("Password", exact=True).fill("TestUser2024!")
         except:
-            page.get_by_placeholder("Username", exact=True).fill("testuser")
+            page.get_by_placeholder("Account name or email", exact=True).fill("testuser")
             page.get_by_placeholder("Password", exact=True).fill("TestUser2024!")
 
     try:
@@ -92,7 +92,7 @@ def run_3(playwright: Playwright) -> None:
             page.get_by_label("Username", exact=True).fill("editor")
             page.get_by_label("Password", exact=True).fill("EditorPass2024!")
         except:
-            page.get_by_placeholder("Username", exact=True).fill("editor")
+            page.get_by_placeholder("Account name or email", exact=True).fill("editor")
             page.get_by_placeholder("Password", exact=True).fill("EditorPass2024!")
 
     try:
@@ -125,7 +125,7 @@ def run_4(playwright: Playwright) -> None:
             page.get_by_label("Username", exact=True).fill("viewer")
             page.get_by_label("Password", exact=True).fill("ViewerPass2024!")
         except:
-            page.get_by_placeholder("Username", exact=True).fill("viewer")
+            page.get_by_placeholder("Account name or email", exact=True).fill("viewer")
             page.get_by_placeholder("Password", exact=True).fill("ViewerPass2024!")
 
     try:
