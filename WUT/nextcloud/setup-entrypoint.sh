@@ -1,3 +1,4 @@
+#/Users/admin/Desktop/ba218hfg321ncm/WUT/nextcloud/setup-entrypoint.sh
 #!/bin/bash
 
 # Nextcloud Auto-Setup Entrypoint Script
