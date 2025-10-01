@@ -1,3 +1,4 @@
+#/Users/admin/Desktop/ba218hfg321ncm/WUT/loc_counter.sh
 #!/bin/bash
 
 # Usage: ./loc_counter.sh [directory] [output_file]

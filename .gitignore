@@ -331,11 +331,24 @@ bacfuzz/fuzzer/request_logs/
 bacfuzz/fuzzer/response_cache/
 bacfuzz/fuzzer/vulnerability_reports/
 bacfuzz/fuzzer/ai_responses/
+
+# WUT application logs and temporary files
 WUT/logs/
 WUT/temp/
 WUT/cache/
 WUT/uploads/
 WUT/sessions/
+
+# osTicket specific files
+WUT/osTicket/osTicket-develop/
+WUT/osTicket/setup_*.sh
+WUT/osTicket/SETUP_README.md
+
+# Docker and runtime files
+*.log
+fuzzer_run.log
+/tmp/osticket_*
+/tmp/*install*.html
 
 # Large files that shouldn't be in git
 *.mp4

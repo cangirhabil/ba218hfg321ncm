@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 mkdir -p /shared-tmpfs/{branch_statements,coverage-reports,exception-reports,error-reports,mysql-error-reports,shell-error-reports,unserialize-error-reports,pathtraversal-error-reports,xxe-error-reports}
 chmod -R 777 /shared-tmpfs/
 chown -R www-data:www-data /var/www/ /shared-tmpfs/{branch_statements,coverage-reports,exception-reports,error-reports,mysql-error-reports,shell-error-reports,unserialize-error-reports,pathtraversal-error-reports,xxe-error-reports}

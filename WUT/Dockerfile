@@ -1,7 +1,8 @@
+#/Users/admin/Desktop/ba218hfg321ncm/WUT/Dockerfile
 FROM php:8.3.6-apache
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends vim git wget rsync default-mysql-client libpng-dev icu-devtools libicu-dev libjpeg-dev graphicsmagick-libmagick-dev-compat libzip-dev sudo less curl # libpq-dev
+    apt-get install -y --no-install-recommends vim git wget rsync default-mysql-client libpng-dev icu-devtools libicu-dev libjpeg-dev graphicsmagick-libmagick-dev-compat libzip-dev sudo less curl redis-tools # libpq-dev
 
 RUN apt-get update && apt-get install -y iputils-ping dnsutils zip # For web tools
 
@@ -19,6 +20,8 @@ WORKDIR /var/www/
 RUN pecl install uopz
 RUN pecl install xdebug
 RUN pecl install pcov
+RUN pecl install redis
+RUN docker-php-ext-enable redis
 
 RUN rm /bin/sh && ln -s bash /bin/sh
 

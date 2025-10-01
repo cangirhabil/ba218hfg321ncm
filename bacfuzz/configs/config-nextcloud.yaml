@@ -1,0 +1,23 @@
+PROJECT_NAME: "nextcloud"
+HOMEPAGE_URL: "http://localhost:8084/"
+NONCE_KEYWORD: "requesttoken"
+COOKIE_KEYWORD: "cookie"
+AVOIDED_REQUEST_POST_DATA: []
+
+UNIQUE_STRING: "bacfuzz"
+UNIQUE_NUMBER: 5342
+COV_PATHS: "../../shared-tmpfs/coverage-reports/"
+MYSQL_PATHS: "../../shared-tmpfs/mysql-error-reports/"
+
+LOGIN_PAGE_PHRASES: ["Username", "Password", "Log in"]
+UNAUTHORIZED_PAGE_PHRASES: ["Unauthorized", "Forbidden", "Access denied"]
+
+NO_NEW_PATH_MAX: 5
+
+## User role specification must starts from the lowest role (i.e., Anonymous)!
+USER_ROLES: ["Anonymous", "Viewer", "Editor", "User", "Admin"]
+AVOIDED_LINKS: ["logout", "reset", "activate", "deactivate", "upgrade"]
+IGNORING_SQL: []
+RUNNING_TIME: { h: 0, m: 0 }
+RESTRICTED_LINKS:
+  ["Admin": [], "User": [], "Editor": [], "Viewer": [], "Anonymous": []]

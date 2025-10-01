@@ -1,0 +1,27 @@
+# osTicket specific ignores
+osTicket-develop/
+setup_fixed.sh
+SETUP_README.md
+
+# Runtime files
+*.log
+*.tmp
+/tmp/
+
+# Docker volumes and data
+data/
+attachments/
+
+# Configuration overrides (if any)
+include/ost-config.php
+ost-config.php
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# System files
+.DS_Store
+Thumbs.db
+*~

@@ -1,0 +1,58 @@
+services:
+  db:
+    image: mariadb:10.6
+    command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_PASSWORD=osticket123
+      - MYSQL_DATABASE=osticket
+      - MYSQL_USER=osticket
+    networks:
+      - osticket_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "osticket", "-posticket123"]
+      timeout: 20s
+      retries: 10
+
+  app:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+      args:
+        APP: osTicket-develop
+    restart: always
+    ports:
+      - 8085:80
+    links:
+      - db
+    volumes:
+      - osticket:/var/www/html
+      - /etc/localtime:/etc/localtime:ro
+      - ../../shared-tmpfs:/shared-tmpfs
+      - ./configs/php.ini:/usr/local/etc/php/php.ini
+      - ./configs/000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - ./setup-entrypoint.sh:/setup-entrypoint.sh:ro
+    environment:
+      - MYSQL_PASSWORD=osticket123
+      - MYSQL_DATABASE=osticket
+      - MYSQL_USER=osticket
+      - MYSQL_HOST=db
+      - MYSQL_ROOT_PASSWORD=rootpassword
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - osticket_network
+    entrypoint: ["/setup-entrypoint.sh"]
+
+volumes:
+  osticket:
+  db:
+
+networks:
+  osticket_network:
+    driver: bridge

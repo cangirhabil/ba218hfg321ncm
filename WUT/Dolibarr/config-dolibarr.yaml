@@ -1,0 +1,23 @@
+PROJECT_NAME: "dolibarr"
+HOMEPAGE_URL: "http://localhost:8085/"
+NONCE_KEYWORD: "token"
+COOKIE_KEYWORD: "cookie"
+AVOIDED_REQUEST_POST_DATA: []
+
+UNIQUE_STRING: "bacfuzz"
+UNIQUE_NUMBER: 5342
+COV_PATHS: "../../shared-tmpfs/coverage-reports/"
+MYSQL_PATHS: "../../shared-tmpfs/mysql-error-reports/"
+
+LOGIN_PAGE_PHRASES: ["Login", "Password", "Connexion"]
+UNAUTHORIZED_PAGE_PHRASES: ["Access denied", "Forbidden", "Not authorized", "Permission denied", "Accès refusé"]
+
+NO_NEW_PATH_MAX: 5
+
+## User role specification must starts from the lowest role (i.e., Anonymous)!
+USER_ROLES: ["Anonymous", "Viewer", "Editor", "User", "Admin"]
+AVOIDED_LINKS: ["logout", "logoff", "disconnect", "reset", "activate", "deactivate", "upgrade", "install"]
+IGNORING_SQL: []
+RUNNING_TIME: { h: 0, m: 0 }
+RESTRICTED_LINKS:
+  ["Admin": [], "User": [], "Editor": [], "Viewer": [], "Anonymous": []]
