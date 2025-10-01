@@ -7,7 +7,7 @@ def run_admin(playwright: Playwright) -> None:
     browser = playwright.chromium.launch(headless=False)
     context = browser.new_context()
     page = context.new_page()
-    page.goto("http://localhost:8085/index.php")
+    page.goto("http://localhost:8086/index.php")
     
     # Wait for the form to load completely
     page.wait_for_timeout(3000)
@@ -55,7 +55,7 @@ def run_2(playwright: Playwright) -> None:
     browser = playwright.chromium.launch(headless=False)
     context = browser.new_context()
     page = context.new_page()
-    page.goto("http://localhost:8085/index.php")
+    page.goto("http://localhost:8086/index.php")
     
     page.wait_for_timeout(3000)
     
@@ -95,7 +95,7 @@ def run_3(playwright: Playwright) -> None:
     browser = playwright.chromium.launch(headless=False)
     context = browser.new_context()
     page = context.new_page()
-    page.goto("http://localhost:8085/index.php")
+    page.goto("http://localhost:8086/index.php")
     
     page.wait_for_timeout(3000)
     
@@ -135,7 +135,7 @@ def run_4(playwright: Playwright) -> None:
     browser = playwright.chromium.launch(headless=False)
     context = browser.new_context()
     page = context.new_page()
-    page.goto("http://localhost:8085/index.php")
+    page.goto("http://localhost:8086/index.php")
     
     page.wait_for_timeout(3000)
     
@@ -175,7 +175,7 @@ def run_Anonymous(playwright: Playwright) -> None:
     browser = playwright.chromium.launch(headless=False)
     context = browser.new_context()
     page = context.new_page()
-    page.goto("http://localhost:8085")
+    page.goto("http://localhost:8086")
 
     page.context.storage_state(path=f"{folder_name}/Anonymous.json")
     

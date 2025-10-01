@@ -2,15 +2,17 @@ services:
   db:
     image: mariadb:10.6
     command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
-    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_PASSWORD: dolibarr123
+      MYSQL_DATABASE: dolibarr
+      MYSQL_USER: dolibarr
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_USER_HOST: "%"
+    ports:
+      - "8809:3306"
     volumes:
       - db:/var/lib/mysql
-      - /etc/localtime:/etc/localtime:ro
-    environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_PASSWORD=dolibarr123
-      - MYSQL_DATABASE=dolibarr
-      - MYSQL_USER=dolibarr
     networks:
       - dolibarr_network
     healthcheck:
@@ -18,43 +20,48 @@ services:
       timeout: 20s
       retries: 10
 
-  app:
-    image: dolibarr/dolibarr:latest
-    restart: always
+  phpmyadmin:
+    image: phpmyadmin:5.2.1
     ports:
-      - 8085:80
+      - "8804:80"
     links:
-      - db
+      - db:db
+    networks:
+      - dolibarr_network
+
+  web-dolibarr:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+      args:
+        APP: Dolibarr
+    environment:
+      FUZZER_COVERAGE_PATH: /var/www/html/
+      FUZZER_COMPRESS: 1
+      REQUIRES_DB: 1
+      DOLI_DB_HOST: db
+      DOLI_DB_USER: dolibarr
+      DOLI_DB_PASSWORD: dolibarr123
+      DOLI_DB_NAME: dolibarr
+      DOLI_ADMIN_LOGIN: admin
+      DOLI_ADMIN_PASSWORD: admin123
+      DOLI_URL_ROOT: http://localhost:8086
     volumes:
       - dolibarr_html:/var/www/html
       - dolibarr_documents:/var/www/documents
-      - /etc/localtime:/etc/localtime:ro
       - ../../shared-tmpfs:/shared-tmpfs
-      - ./setup-entrypoint.sh:/setup-entrypoint.sh:ro
-    environment:
-      - DOLI_DB_HOST=db
-      - DOLI_DB_USER=dolibarr
-      - DOLI_DB_PASSWORD=dolibarr123
-      - DOLI_DB_NAME=dolibarr
-      - DOLI_ADMIN_LOGIN=admin
-      - DOLI_ADMIN_PASSWORD=admin123
-      - DOLI_URL_ROOT=http://localhost:8085
-      - DOLI_INSTALL_AUTO=1
-      - DOLI_PROD=0
-      - WWW_USER_ID=1000
-      - WWW_GROUP_ID=1000
-      - PHP_INI_DATE_TIMEZONE=Europe/Amsterdam
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./init.sh:/init.sh:ro
+    ports:
+      - 8086:80
     depends_on:
       db:
         condition: service_healthy
+    links:
+      - db:db
     networks:
       - dolibarr_network
-    entrypoint: ["/setup-entrypoint.sh"]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      timeout: 30s
-      retries: 5
-      interval: 10s
+    entrypoint: ["/init.sh"]
 
 volumes:
   dolibarr_html:

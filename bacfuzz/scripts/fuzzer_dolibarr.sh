@@ -5,7 +5,7 @@ project_name="dolibarr"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 ## Running WUT
-PORT=8085               
+PORT=8086               
 TIMEOUT=5              
 HOST="localhost"
 TARGET_URL="http://${HOST}:${PORT}/" 
