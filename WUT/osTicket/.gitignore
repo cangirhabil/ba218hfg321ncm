@@ -1,27 +1,22 @@
-# osTicket specific ignores
-osTicket-develop/
-setup_fixed.sh
-SETUP_README.md
-
-# Runtime files
-*.log
-*.tmp
-/tmp/
-
-# Docker volumes and data
-data/
-attachments/
-
-# Configuration overrides (if any)
+.htaccess
+php53.cgi
 include/ost-config.php
-ost-config.php
-
-# Backup files
-*.bak
-*.backup
-*.old
-
-# System files
+setup/cli/modules/importer
+*.sw[a-z]
 .DS_Store
-Thumbs.db
-*~
+.vagrant
+._.DS_Store
+Vagrantfile
+# VS Code workspace files
+*.code-workspace
+
+# Staging directory used for packaging script
+stage
+
+# Ignore packaged plugins and language packs
+*.phar
+
+# Ignore mPDF temp files
+include/mpdf/ttfontdata
+include/mpdf/tmp
+nbproject/

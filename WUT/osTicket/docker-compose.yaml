@@ -2,52 +2,72 @@ services:
   db:
     image: mariadb:10.6
     command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
-    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_PASSWORD: osticket123
+      MYSQL_DATABASE: osticket
+      MYSQL_USER: osticket
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_USER_HOST: "%"
+    ports:
+      - "8808:3306"
     volumes:
       - db:/var/lib/mysql
-      - /etc/localtime:/etc/localtime:ro
-    environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_PASSWORD=osticket123
-      - MYSQL_DATABASE=osticket
-      - MYSQL_USER=osticket
     networks:
       - osticket_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "osticket", "-posticket123"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "osticket",
+          "-posticket123",
+        ]
       timeout: 20s
       retries: 10
 
-  app:
+  phpmyadmin:
+    image: phpmyadmin:5.2.1
+    ports:
+      - "8803:80"
+    links:
+      - db:db
+    networks:
+      - osticket_network
+
+  web-osticket:
     build:
       context: ../
       dockerfile: Dockerfile
       args:
-        APP: osTicket-develop
-    restart: always
-    ports:
-      - 8085:80
-    links:
-      - db
+        APP: osTicket
+    environment:
+      FUZZER_COVERAGE_PATH: /var/www/html/
+      FUZZER_COMPRESS: 1
+      REQUIRES_DB: 1
+      MYSQL_PASSWORD: osticket123
+      MYSQL_DATABASE: osticket
+      MYSQL_USER: osticket
+      MYSQL_HOST: db
     volumes:
       - osticket:/var/www/html
-      - /etc/localtime:/etc/localtime:ro
       - ../../shared-tmpfs:/shared-tmpfs
-      - ./configs/php.ini:/usr/local/etc/php/php.ini
-      - ./configs/000-default.conf:/etc/apache2/sites-available/000-default.conf
-      - ./setup-entrypoint.sh:/setup-entrypoint.sh:ro
-    environment:
-      - MYSQL_PASSWORD=osticket123
-      - MYSQL_DATABASE=osticket
-      - MYSQL_USER=osticket
-      - MYSQL_HOST=db
-      - MYSQL_ROOT_PASSWORD=rootpassword
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./init.sh:/init.sh:ro
+    ports:
+      - 8085:80
     depends_on:
       db:
         condition: service_healthy
+    links:
+      - db:db
     networks:
       - osticket_network
-    entrypoint: ["/setup-entrypoint.sh"]
+    entrypoint: ["/init.sh"]
 
 volumes:
   osticket:

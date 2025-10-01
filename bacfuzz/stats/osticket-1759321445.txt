@@ -1,0 +1,11 @@
+=== Memory Usage ===
+
+=== Detailed Memory Info ===
+
+=== CPU Usage ===
+
+=== Per-Core CPU Usage ===
+
+=== Top 5 Processes by CPU Usage ===
+
+=== Top 5 Processes by Memory Usage ===
