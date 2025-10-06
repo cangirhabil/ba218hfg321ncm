@@ -39,13 +39,17 @@ echo "🚀 Starting Apache web server..."
 /usr/sbin/apache2ctl -D FOREGROUND &
 APACHE_PID=$!
 
-# Function to cleanup on exit
+# Function to handle signals and cleanup
 cleanup() {
-    echo "Cleaning up..."
-    kill $APACHE_PID 2>/dev/null || true
+    echo "Received shutdown signal, stopping Apache..."
+    kill -TERM $APACHE_PID 2>/dev/null || true
     wait $APACHE_PID 2>/dev/null || true
+    echo "Apache stopped gracefully"
+    exit 0
 }
-trap cleanup EXIT
+
+# Trap SIGTERM and SIGINT for graceful shutdown
+trap cleanup SIGTERM SIGINT
 
 # Wait for web server to be ready
 echo "🌐 Waiting for web server..."
