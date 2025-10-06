@@ -124,17 +124,17 @@ curl -X POST \
   "http://localhost/setup/install.php" \
   -s -o /tmp/config_response.html
 
-echo "✅ Installation request sent, waiting for completion..."
-sleep 20
+echo "✅ Installation request sent, waiting for database tables to be created..."
 
 echo "🔍 VERIFYING INSTALLATION..."
 
-MAX_ATTEMPTS=20
+MAX_ATTEMPTS=30
+TABLES=0
 for attempt in $(seq 1 $MAX_ATTEMPTS); do
     # Check database tables
     TABLES=$(mysql -h db -u osticket -posticket123 -e "USE osticket; SHOW TABLES;" 2>/dev/null | grep "ost_" 2>/dev/null | wc -l | tr -d ' \n' || echo "0")
     
-    echo "   Attempt $attempt/$MAX_ATTEMPTS: $TABLES database tables found"
+    echo "   Attempt $attempt/$MAX_ATTEMPTS: $TABLES database tables found (waiting...)"
     
     if [ ! -z "$TABLES" ] && [ "$TABLES" -gt 25 ]; then
         echo "🎉 INSTALLATION SUCCESSFUL! ($TABLES tables created)"

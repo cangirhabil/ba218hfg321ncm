@@ -154,7 +154,22 @@ curl -s -X POST "http://localhost/install/step2.php" \
   -d "action=set" \
   > /dev/null
 
-sleep 10
+echo "⏳ Waiting for database tables to be created..."
+# Wait for tables to be created (up to 60 seconds)
+WAIT_COUNTER=0
+TABLES=0
+while [ "$TABLES" -lt 50 ] && [ $WAIT_COUNTER -lt 60 ]; do
+    sleep 2
+    WAIT_COUNTER=$((WAIT_COUNTER + 2))
+    TABLES=$(mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SHOW TABLES LIKE 'llx_%';" 2>/dev/null | wc -l | tr -d ' \n' || echo "0")
+    echo "   Tables found: $TABLES (waiting ${WAIT_COUNTER}s)"
+done
+
+if [ "$TABLES" -lt 50 ]; then
+    echo "⚠️  Warning: Only $TABLES tables created after ${WAIT_COUNTER}s, but continuing..."
+else
+    echo "✅ Database tables created successfully!"
+fi
 
 # Step 3: Create admin user
 curl -s -X POST "http://localhost/install/step5.php" \
@@ -168,9 +183,8 @@ echo "✅ Installation request completed"
 
 # Verify installation
 echo "🔍 Verifying installation..."
-sleep 10
 
-# Check database tables
+# Check database tables (final check)
 TABLES=$(mysql -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SHOW TABLES LIKE 'llx_%';" 2>/dev/null | wc -l | tr -d ' \n' || echo "0")
 
 echo "   Database tables found: $TABLES"
